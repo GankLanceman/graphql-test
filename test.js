@@ -11,9 +11,9 @@ request(
           rollDice(numDice: $dice, numSides: $sides),
           quoteOfTheDay,
           random
-          getDie(numSides: 10) {
+          getDie(numSides: $sides) {
             rollOnce,
-            roll(numRolls: 2)
+            roll(numRolls: $dice)
           }
         }`,
       variables: { dice, sides }
