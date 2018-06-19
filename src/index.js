@@ -2,11 +2,28 @@ const express = require("express");
 const graphqlHTTP = require("express-graphql");
 const { buildSchema } = require("graphql");
 
-let schema = buildSchema('type Query { hello: String }');
+let schema = buildSchema(`
+  type Query { 
+    quoteOfTheDay: String
+    random: Float!
+    rollDice(numDice: Int!, numSides: Int): [Int]
+  }
+`);
 
 let root = {
-  hello: () => {
-    return "Hello World!";
+  quoteOfTheDay: () => {
+    return Math.random() < 0.5 ? "Take it easy": "Salvation lies within";
+  },
+  random: () => {
+    return Math.random();
+  },
+  rollDice: ({numDice, numSides}) => {
+    let output = [];
+    for (let i = 0; i < numDice; i++) {
+      output.push(1 + Math.floor(Math.random() * (numSides || 6)))      
+    }
+
+    return output;
   }
 };
 
