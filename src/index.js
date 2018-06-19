@@ -3,56 +3,66 @@ const graphqlHTTP = require("express-graphql");
 const { buildSchema } = require("graphql");
 
 let schema = buildSchema(`
-  type RandomDie {
-    numSides: Int!
-    rollOnce: Int!
-    roll(numRolls: Int!): [Int]
+  input MessageInput {
+    content: String
+    author: String
   }
 
-  type Query { 
-    quoteOfTheDay: String
-    random: Float!
-    rollDice(numDice: Int!, numSides: Int): [Int]
-    getDie(numSides: Int): RandomDie
+  type Message {
+    id: ID!
+    content: String
+    author: String
+  }
+
+  type Query {
+    getMessage(id: ID!): Message
+    messages: [Message]
+  }
+
+  type Mutation {
+    createMessage(input: MessageInput): Message
+    updateMessage(id: ID!, input: MessageInput): Message
   }
 `);
 
-class RandomDie {
-  constructor(numSides) {
-    this.numSides = numSides
-  }
-
-  rollOnce() {
-    return 1 + Math.floor(Math.random() * this.numSides);
-  }
-
-  roll({numRolls}) {
-    let output = [];
-    for (let i = 0; i < numRolls; i++) {
-      output.push(this.rollOnce())      
-    }
-    
-    return output;
+class Message {
+  constructor(id, { content, author }) {
+    this.id = id;
+    this.content = content;
+    this.author = author;
   }
 }
 
+let fakeDatabase = {};
+
 let root = {
-  quoteOfTheDay: () => {
-    return Math.random() < 0.5 ? "Take it easy": "Salvation lies within";
-  },
-  random: () => {
-    return Math.random();
-  },
-  rollDice: ({numDice, numSides}) => {
-    let output = [];
-    for (let i = 0; i < numDice; i++) {
-      output.push(1 + Math.floor(Math.random() * (numSides || 6)))      
+  getMessage: ({ id }) => {
+    if (!fakeDatabase[id]) {
+      throw new Error("no message exists with the id " + id);
     }
 
-    return output;
+    return new Message(id, fakeDatabase[id]);
   },
-  getDie: ({numSides}) => {
-    return new RandomDie(numSides || 6)
+  messages: () => {
+    if (!fakeDatabase) {
+      throw new Error("no message exists with the id " + id);
+    }
+
+    return Object.values(fakeDatabase)
+  },
+  createMessage: ({ input }) => {
+    let id = require("crypto").randomBytes(10).toString("hex");
+
+    fakeDatabase[id] = input;
+    return new Message(id, fakeDatabase[id]);
+  },
+  updateMessage: ({ id, input }) => {
+    if (!fakeDatabase[id]) {
+      throw new Error("no message exists with id " + id)
+    }
+
+    fakeDatabase[id] = input;
+    return new Message(id, input);
   }
 };
 
