@@ -9,7 +9,12 @@ request(
     body: {
       query: `query RollDice($dice: Int! $sides: Int) {
           rollDice(numDice: $dice, numSides: $sides),
-          quoteOfTheDay
+          quoteOfTheDay,
+          random
+          getDie(numSides: 10) {
+            rollOnce,
+            roll(numRolls: 2)
+          }
         }`,
       variables: { dice, sides }
     },
