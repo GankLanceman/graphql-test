@@ -1,18 +1,25 @@
 const request = require("request");
 
-request(
+request.post(
   {
     json: true,
     body: {
-      query: `mutation CreateMessage($input: MessageInput) {
-        createMessage(input: $input) {
+      query: `mutation createReport($input: ReportInput) {
+        createReport(input: $input) {
           id
+          columns
+          name
+          creator
         }
       }`,
       variables: {
         input: {
-          author: "Gank Lanceman",
-          content: "Love is a battlefield!"
+          creator: "Gank Lanceman",
+          name: "Love is a battlefield!",
+          columns: [
+            "Column 1",
+            "Column 2"
+          ]
         }
       }
     },
