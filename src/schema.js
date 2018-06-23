@@ -20,7 +20,6 @@ module.exports.typeDefs = gql`
   type Query {
     getReport(id: ID!): Report
     reports: [Report]
-    creators: [String]
   }
 
   type Mutation {
@@ -49,7 +48,7 @@ module.exports.resolvers = {
       if (!fakeDatabase[id]) {
         throw new Error("no report exists with the id " + id);
       }
-  
+
       return new Report(id, fakeDatabase[id]);
     },
 
@@ -57,7 +56,7 @@ module.exports.resolvers = {
       if (!fakeDatabase) {
         throw new Error("no report exists with the id " + id);
       }
-  
+
       return Object.values(fakeDatabase)
     },
 
@@ -68,16 +67,21 @@ module.exports.resolvers = {
   Mutation: {
     createReport: (root, { input }) => {
       let id = require("crypto").randomBytes(10).toString("hex");
-  
-      fakeDatabase[id] = input;
+
+      fakeDatabase[id] = { ...input, id };
       return new Report(id, fakeDatabase[id]);
     },
-    updateReport: ({ id, input }) => {
+
+    updateReport: (root, { id, input }) => {
       if (!fakeDatabase[id]) {
         throw new Error("no report exists with id " + id)
       }
-  
-      fakeDatabase[id] = input;
+
+      fakeDatabase[id] = {
+        ...fakeDatabase[id],
+        ...input
+      };
+
       return new Report(id, input);
     }
   }
